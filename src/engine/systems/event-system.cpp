@@ -6,7 +6,7 @@
 #include "event-system.hpp"
 
 
-Engine::EventSystem::EventSystem(sf::RenderWindow *window) {
+Engine::EventSystem::EventSystem(std::shared_ptr<sf::RenderWindow> window) {
     this->window = window;
     window->setKeyRepeatEnabled(false);
 }

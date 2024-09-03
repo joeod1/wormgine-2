@@ -10,10 +10,10 @@
 namespace Engine {
 
     class EventSystem : public System {
-        sf::RenderWindow* window;
+        std::shared_ptr<sf::RenderWindow> window;
     public:
 
-        EventSystem(sf::RenderWindow *);
+        EventSystem(std::shared_ptr<sf::RenderWindow>);
         void update(entt::registry &);
     };
 };

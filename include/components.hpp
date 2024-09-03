@@ -43,15 +43,25 @@ struct VelocityIntent {
 };
 
 struct Transformable {
-    sf::Transform *transform;
+    std::shared_ptr<sf::Transform> transform;
 };
 
 struct Drawable {
-    sf::Drawable *drawable;
+    std::shared_ptr<sf::Drawable> drawable;
 };
 
 struct Physical {
     b2BodyType type = b2BodyType::b2_dynamicBody;
+};
+
+struct CameraFollowing {
+    entt::entity entity;
+};
+
+struct Camera {};
+
+struct OnCollisionBegin {
+    entt::delegate<void(entt::entity, b2ContactData)> callback;
 };
 
 #endif

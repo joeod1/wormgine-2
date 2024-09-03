@@ -12,10 +12,10 @@ namespace Engine {
         std::string name;
         std::string loadPath = "./scene.json";
 
-        sf::RenderWindow* window;
+        std::shared_ptr<sf::RenderWindow> window;
 
         entt::registry registry;
-        std::vector<System*> systems;
+        std::vector<std::unique_ptr<System>> systems;
 
 
         /**

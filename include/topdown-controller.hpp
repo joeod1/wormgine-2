@@ -38,7 +38,7 @@ namespace Engine {
                     });
 
                     if (event.key.code == sf::Keyboard::Q) {
-                        for (int i = 1; i < 100; i++) {
+                        for (int i = 1; i < 10; i++) {
                             Scale size{i * 13 * 113 % 5 / 5.f + 0.25f, i * 17 * 243 % 5 / 5.f + 0.25f};
                             Position pos{(i * 1277 * 3929 * 2081) % 80 / 5.f + 20.25f, (i * 1459 * 3037 * 2503) % 40 / 5.f + 0.25f};
 
@@ -51,7 +51,7 @@ namespace Engine {
                             registry->emplace<Scale>(ent, size);
                             registry->emplace<Color>(ent, sf::Color(i * 11 * 17 * 113 % 255, i * 11 * 19 * 113 % 255, i * 11 * 23 * 113 % 255));
                             registry->emplace<Shape>(ent, Shape{Shapes::rectangle});
-                            registry->emplace<Transformable>(ent, Transformable{new sf::Transform()});
+                            registry->emplace<Transformable>(ent, Transformable{std::make_shared<sf::Transform>()});
                             registry->emplace<Physical>(ent, Physical{b2BodyType::b2_dynamicBody});
                         }
                     }
@@ -116,8 +116,13 @@ namespace Engine {
             registry.emplace<Color>(character, sf::Color(255, 50, 255));
             registry.emplace<Shape>(character, Shape{Shapes::rectangle});
             registry.emplace<VelocityIntent>(character);
-            registry.emplace<Transformable>(character, Transformable{new sf::Transform()});
+            registry.emplace<Transformable>(character, Transformable{std::make_shared<sf::Transform>()});
             registry.emplace<Physical>(character);
+
+            entt::entity camera = registry.create();
+            registry.emplace<Position>(camera);
+            registry.emplace<Camera>(camera);
+            registry.emplace<CameraFollowing>(character, camera);
 
 
 
@@ -134,7 +139,7 @@ namespace Engine {
             registry.emplace<Scale>(ground, sz1);
             registry.emplace<Color>(ground, sf::Color(50, 255, 255));
             registry.emplace<Shape>(ground, Shape{Shapes::rectangle});
-            registry.emplace<Transformable>(ground, Transformable{new sf::Transform()});
+            registry.emplace<Transformable>(ground, Transformable{std::make_shared<sf::Transform>()});
             registry.emplace<Physical>(ground, Physical{b2BodyType::b2_staticBody});
 
             
@@ -154,33 +159,43 @@ namespace Engine {
                     lastiJump = i;
                     b2Body_ApplyLinearImpulseToCenter(bodyId, b2Vec2{0, -32}, true);
                 }
+
+                Position bodyPos = registry.get<Position>(entity);
+                CameraFollowing *cam = registry.try_get<CameraFollowing>(entity);
+                if (cam != nullptr && registry.valid(cam->entity)) {
+                    registry.patch<Position>(cam->entity, [bodyPos](Position &pos){
+                        pos.x = bodyPos.x;
+                        pos.y = bodyPos.y;
+                    });
+                }
             }
 
 
 
             i++;
 
-            // if (i % 4 == 0) {
-            //     Scale size{i * 13 * 113 % 5 / 5.f + 0.25f, i * 17 * 243 % 5 / 5.f + 0.25f};
-            //     Position pos{(i * 1277 * 3929 * 2081) % 80 / 5.f + 10.25f, (i * 1459 * 3037 * 2503) % 40 / 5.f + 0.25f};
+            if (i % 4 == 0) {
+                Scale size{i * 13 * 113 % 5 / 5.f + 0.25f, i * 17 * 243 % 5 / 5.f + 0.25f};
+                Position pos{(i * 1277 * 3929 * 2081) % 80 / 5.f + 10.25f, (i * 1459 * 3037 * 2503) % 40 / 5.f + 0.25f};
 
-            //     std::cout << "For i = " << i << ", pos: " << size.x << ", " << size.y << "\n";
+                std::cout << "For i = " << i << ", pos: " << size.x << ", " << size.y << "\n";
                 
-            //     entt::entity ent = registry.create();
+                entt::entity ent = registry.create();
 
-            //     // sf::RectangleShape *gf2 = new sf::RectangleShape();
-            //     // gf2->setSize(sf::Vector2f(size.x * 100, size.y * 100));
-            //     // gf2->setFillColor(sf::Color(i * 11 * 17 * 113 % 255, i * 11 * 19 * 113 % 255, i * 11 * 23 * 113 % 255));
-            //     // gf2->setOrigin(size.x * 50, size.y * 50);
-            //     // registry.emplace<Drawable>(ent, gf2);
+                // sf::RectangleShape *gf2 = new sf::RectangleShape();
+                // gf2->setSize(sf::Vector2f(size.x * 100, size.y * 100));
+                // gf2->setFillColor(sf::Color(i * 11 * 17 * 113 % 255, i * 11 * 19 * 113 % 255, i * 11 * 23 * 113 % 255));
+                // gf2->setOrigin(size.x * 50, size.y * 50);
+                // registry.emplace<Drawable>(ent, gf2);
 
-            //     registry.emplace<Position>(ent, pos);
-            //     registry.emplace<Scale>(ent, size);
-            //     registry.emplace<Color>(ent, sf::Color(i * 11 * 17 * 113 % 255, i * 11 * 19 * 113 % 255, i * 11 * 23 * 113 % 255));
-            //     registry.emplace<Shape>(ent, Shape{Shapes::rectangle});
-            //     registry.emplace<Transformable>(ent, Transformable{new sf::Transform()});
-            //     registry.emplace<Physical>(ent, Physical{b2BodyType::b2_dynamicBody});
-            // }
+                registry.emplace<Position>(ent, pos);
+                registry.emplace<Scale>(ent, size);
+                registry.emplace<Color>(ent, sf::Color(i * 11 * 17 * 113 % 255, i * 11 * 19 * 113 % 255, i * 11 * 23 * 113 % 255));
+                registry.emplace<b2Rot>(ent);
+                registry.emplace<Shape>(ent, Shape{Shapes::rectangle});
+                registry.emplace<Transformable>(ent, Transformable{std::make_shared<sf::Transform>()});
+                registry.emplace<Physical>(ent, Physical{b2BodyType::b2_dynamicBody});
+            }
         }
     };
 };

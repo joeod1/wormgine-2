@@ -15,14 +15,28 @@ void Engine::PhysicsSystem::start(entt::registry &registry) {
 }
 
 void Engine::PhysicsSystem::update(entt::registry &registry) {
-    b2World_Step(worldId, 0.0166f, 4);
+    b2World_Step(worldId, 0.0166f * 2, 4);
     b2ContactEvents events = b2World_GetContactEvents(worldId);
     
-    // for (int i = 0; i < events.beginCount; i++) {
-    //     std::cout << "Collision! \n";
+    for (int i = 0; i < events.beginCount; i++) {
+        // std::cout << "Collision! \n";
+        auto body = b2Shape_GetBody(events.beginEvents[i].shapeIdA);
+        auto bodyB = b2Shape_GetBody(events.beginEvents[i].shapeIdB);
+        void *entityptr = b2Body_GetUserData(body);
+        if (entityptr == nullptr) continue;
 
-    //     // events.beginEvents[i].shapeIdA// ->shapeIdA;
-    // }
+        auto *entity = static_cast<entt::entity*>(entityptr);
+        if (registry.valid(*entity)) {
+            auto callback = registry.try_get<OnCollisionBegin>(*entity);
+            // callback->callback(*static_cast<entt::entity*>(b2Body_GetUserData(b2Shape_GetBody(events.beginEvents[i].shapeIdB))), events.beginEvents[i]);
+            // registry.patch<Position>(entity, [](auto &pos) {});
+            std::cout<< "Popped";
+            // b2Body_ApplyLinearImpulseToCenter(body, b2Vec2{0, -5}, true);
+            // b2Body_ApplyLinearImpulseToCenter(bodyB, b2Vec2{0, -5}, true);
+            // registry.patch<Position>(*entity, [](Position &pos) { pos.y -=100; });
+            //registry.try_get<Position>
+        }
+    }
 
     for (auto [entity, bodyId] : registry.view<b2BodyId>().each()) {
         b2Vec2 pos = b2Body_GetPosition(bodyId);
@@ -43,6 +57,8 @@ void Engine::PhysicsSystem::generateWorldProp(entt::registry &registry, entt::en
     b2BodyDef bodyDef = b2DefaultBodyDef();
     bodyDef.type = phys->type;
     bodyDef.position = (b2Vec2){pos->x, pos->y};
+
+    bodyDef.userData = new entt::entity{entity};
 
     b2BodyId bodyId = b2CreateBody(worldId, &bodyDef);
     registry.emplace<b2BodyId>(entity, bodyId);

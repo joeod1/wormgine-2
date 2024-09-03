@@ -19,12 +19,14 @@ namespace Engine {
         void init();
 
     public:
-        sf::RenderWindow *window;
+        std::shared_ptr<sf::RenderWindow> window;
         std::string title = "Game Window";
 
         float lastFrameTime = 0;
         sf::Clock clock;
         sf::Font primaryFont;
+
+        sf::View primaryView;
 
         Renderer() {
             init();
@@ -35,7 +37,7 @@ namespace Engine {
             init();
         }
 
-        sf::RenderWindow* getWindow();
+        std::shared_ptr<sf::RenderWindow> getWindow();
 
         void start(entt::registry &registry);
         void update(entt::registry &registry);
