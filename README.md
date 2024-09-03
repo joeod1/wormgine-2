@@ -8,7 +8,6 @@ It's called Wormgine because my primary intention is to create slithery worms/sn
 ![A thousand box2d dynamic bodies spawning and falling.](demo.webp)
 
 ## Todo
-* Implement: box2d contact events (in-progress).
 * Implement: More box2d shapes.
 * Implement: box2d joints.
 * Implement: Textured/animated shapes.

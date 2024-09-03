@@ -61,7 +61,11 @@ struct CameraFollowing {
 struct Camera {};
 
 struct OnCollisionBegin {
-    entt::delegate<void(entt::entity, b2ContactData)> callback;
+    entt::delegate<void(entt::registry &,entt::entity, b2ContactBeginTouchEvent)> callback;
+};
+
+struct OnCollisionEnd {
+    entt::delegate<void(entt::registry &,entt::entity, b2ContactEndTouchEvent)> callback;
 };
 
 #endif

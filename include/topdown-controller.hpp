@@ -96,6 +96,22 @@ namespace Engine {
             }
         }
 
+        void onContact(entt::registry &registry, entt::entity other, b2ContactBeginTouchEvent event) {
+            b2BodyId otherb2 = registry.get<b2BodyId>(other);
+            b2BodyType type = b2Body_GetType(otherb2);
+
+            if (type == b2BodyType::b2_dynamicBody) {
+                if (i % 2 == 0)
+                    b2Body_ApplyLinearImpulseToCenter(
+                        otherb2,
+                        b2Vec2{0, -50},
+                        true
+                    );
+                else
+                    registry.destroy(other);
+            }
+        }
+
 
         void start(entt::registry &registry) {
             this->registry = &registry;
@@ -118,6 +134,8 @@ namespace Engine {
             registry.emplace<VelocityIntent>(character);
             registry.emplace<Transformable>(character, Transformable{std::make_shared<sf::Transform>()});
             registry.emplace<Physical>(character);
+            registry.emplace<OnCollisionBegin>(character);
+            registry.get<OnCollisionBegin>(character).callback.connect<&TopdownController::onContact>(this);
 
             entt::entity camera = registry.create();
             registry.emplace<Position>(camera);
